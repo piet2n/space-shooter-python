@@ -19,6 +19,14 @@ for i in range(3):
 ship_x = 200 
 ship_y = 500
 
+# Alien character
+alien_images = []
+for i in range(2):
+    img = pg.image.load(f"images/alien_{i}.png")
+    alien_images.append(img)
+alien_x = 200 
+alien_y = 0 
+
 
 ### Game loop ###
 running = True
@@ -45,6 +53,10 @@ while running:
             elif event.key == pg.K_RIGHT:
                 ship_x += 8 
 
+    
+    ## Updating (movement, collisions, etc.) ##
+    alien_y += 1    
+
 
     ## Drawing ##
     screen.fill((0,0,0)) 
@@ -54,6 +66,10 @@ while running:
     # 25% animation speed: int(tick/4) % 3
     r = int(tick/4) % 3 
     screen.blit(ship_images[r], (ship_x, ship_y))
+
+    # Alien
+    r = int(tick/8) % 2
+    screen.blit(alien_images[r], (alien_x, alien_y))
 
     # Update window with newly drawn pixels
     pg.display.flip()
