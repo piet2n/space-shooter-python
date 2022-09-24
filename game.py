@@ -27,6 +27,10 @@ for i in range(2):
 alien_x = 200 
 alien_y = 0 
 
+# Keypress status
+left_pressed = False
+right_pressed = False
+
 
 ### Game loop ###
 running = True
@@ -48,14 +52,32 @@ while running:
                 running = False
 
             elif event.key == pg.K_LEFT:
-                ship_x -= 8 
+                left_pressed = True
 
             elif event.key == pg.K_RIGHT:
-                ship_x += 8 
+                right_pressed = True
 
+        # Keyreleases
+        elif event.type == pg.KEYUP:
+
+            if event.key == pg.K_LEFT:
+                left_pressed = False 
+
+            elif event.key == pg.K_RIGHT:
+                right_pressed = False 
     
+
     ## Updating (movement, collisions, etc.) ##
+    
+    # Alien
     alien_y += 1    
+
+    # Spaceship
+    if left_pressed:
+        ship_x -= 4 
+
+    if right_pressed:
+        ship_x += 4 
 
 
     ## Drawing ##
