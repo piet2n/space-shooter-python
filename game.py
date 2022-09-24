@@ -1,0 +1,54 @@
+# Arcade-style space shooter inspired by Galaga and Spacer Invaders.
+# Made for the purpose of teaching git version control to beginners.
+
+import pygame as pg
+
+
+### Setup ###
+pg.init()
+clock = pg.time.Clock()
+
+screen = pg.display.set_mode((400,600))
+pg.display.set_caption("Space Shooter")
+
+# Spaceship character
+ship_img = pg.image.load("ship.png")
+ship_x = 200 
+ship_y = 500
+
+
+### Game loop ###
+running = True
+while running:
+
+    ## Event loop  (handle keypresses etc.) ##
+    events = pg.event.get()
+    for event in events:
+
+        # Close window (pressing [x], Alt+F4 etc.)
+        if event.type == pg.QUIT:
+            running = False
+        
+        # Keypresses
+        elif event.type == pg.KEYDOWN:
+
+            if event.key == pg.K_ESCAPE:
+                running = False
+
+            elif event.key == pg.K_LEFT:
+                ship_x -= 8 
+
+            elif event.key == pg.K_RIGHT:
+                ship_x += 8 
+
+
+    ## Drawing ##
+    screen.fill((0,0,0)) 
+
+    screen.blit(ship_img, (ship_x, ship_y))
+
+    # Update window with newly drawn pixels
+    pg.display.flip()
+
+    # Limit/fix frame rate (fps)
+    clock.tick(50)
