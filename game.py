@@ -24,8 +24,13 @@ alien_images = []
 for i in range(2):
     img = pg.image.load(f"images/alien_{i}.png")
     alien_images.append(img)
-alien_x = 200 
-alien_y = 0 
+
+aliens = []
+for i in range(5):
+    alien1 = {'x': 50*i + 50 , 'y': 0}
+    alien2 = {'x': 50*i + 50, 'y': 50}
+    aliens.append(alien1)
+    aliens.append(alien2)
 
 # Keypress status
 left_pressed = False
@@ -68,16 +73,17 @@ while running:
     
 
     ## Updating (movement, collisions, etc.) ##
-    
+
     # Alien
-    alien_y += 1    
+    for alien in aliens:
+        alien['y'] += 1
 
     # Spaceship
     if left_pressed:
-        ship_x -= 4 
+        ship_x -= 8
 
     if right_pressed:
-        ship_x += 4 
+        ship_x += 8
 
 
     ## Drawing ##
@@ -91,7 +97,8 @@ while running:
 
     # Alien
     r = int(tick/8) % 2
-    screen.blit(alien_images[r], (alien_x, alien_y))
+    for alien in aliens:
+        screen.blit(alien_images[r], (alien['x'], alien['y']))
 
     # Update window with newly drawn pixels
     pg.display.flip()
