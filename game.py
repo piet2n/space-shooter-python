@@ -18,6 +18,8 @@ for i in range(3):
     ship_images.append(img)
 ship_x = 200 
 ship_y = 500
+ship_w = ship_images[0].get_rect().size[0]
+ship_h = ship_images[0].get_rect().size[1]
 
 # Alien character
 alien_images = []
@@ -31,6 +33,10 @@ for i in range(5):
     alien2 = {'x': 50*i + 50, 'y': 50}
     aliens.append(alien1)
     aliens.append(alien2)
+
+# Projectiles 
+projectile_fired = False
+projectiles = []
 
 # Keypress status
 left_pressed = False
@@ -62,6 +68,9 @@ while running:
             elif event.key == pg.K_RIGHT:
                 right_pressed = True
 
+            elif event.key == pg.K_SPACE:
+                projectile_fired = True
+
         # Keyreleases
         elif event.type == pg.KEYUP:
 
@@ -85,6 +94,24 @@ while running:
     if right_pressed:
         ship_x += 8
 
+    # Projectile movement
+    # Reverse iteration needed to handle each projectile correctly
+    # in cases where a projectile is removed.
+    for projectile in reversed(projectiles):
+        projectile['y'] -= 8 
+
+        # Remove projectiles leavning the top of the screen
+        if projectile['y'] < 0:
+            projectiles.remove(projectile)
+
+
+    # Firing (spawning new projectiles)
+    if projectile_fired:
+        projectile = {'x': ship_x + ship_w/2, 
+                      'y': ship_y}
+        projectiles.append(projectile)
+        projectile_fired = False
+
 
     ## Drawing ##
     screen.fill((0,0,0)) 
@@ -99,6 +126,11 @@ while running:
     r = int(tick/8) % 2
     for alien in aliens:
         screen.blit(alien_images[r], (alien['x'], alien['y']))
+
+    # Projectiles
+    for projectile in projectiles:
+        rect = (projectile['x'], projectile['y'], 4, 8)
+        pg.draw.rect(screen, (255, 0, 0), rect) 
 
     # Update window with newly drawn pixels
     pg.display.flip()
