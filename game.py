@@ -47,6 +47,10 @@ projectile_h = 8
 left_pressed = False
 right_pressed = False
 
+# Sound: weapon / laser 
+# https://sfxr.me/#34T6Pm25W5VunHtL14gUxhLx6MqNduzaeRPcUbqtT4RN55w6nP9NipaUrx5ZBBvohWwXgMrd5BS2e7HwRwEVyzmKM3FV8LiU7Gh5ob2VvvMi6ftqdhbVB54ZM 
+sound_laser = pg.mixer.Sound("sounds/laser.wav")
+
 
 ### Game loop ###
 running = True
@@ -132,6 +136,8 @@ while running:
 
     # Firing (spawning new projectiles)
     if projectile_fired:
+        sound_laser.play()
+
         projectile = {'x': ship_x + ship_w/2, 
                       'y': ship_y}
         projectiles.append(projectile)
