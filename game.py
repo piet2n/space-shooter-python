@@ -34,9 +34,14 @@ for i in range(5):
     aliens.append(alien1)
     aliens.append(alien2)
 
+alien_w = alien_images[0].get_rect().size[0]
+alien_h = alien_images[0].get_rect().size[1]
+
 # Projectiles 
 projectile_fired = False
 projectiles = []
+projectile_w = 4
+projectile_h = 8
 
 # Keypress status
 left_pressed = False
@@ -104,6 +109,26 @@ while running:
         if projectile['y'] < 0:
             projectiles.remove(projectile)
 
+    # Alien / projectile collision 
+    # Test each projectile against each alien
+    for projectile in reversed(projectiles):
+        for alien in aliens:
+
+            # Horizontal (x) overlap
+            if (alien['x'] < projectile['x'] + projectile_w and 
+                projectile['x'] < alien['x']+alien_w):
+                
+                # Vertical (y) overlap 
+                if (projectile['y'] < alien['y'] + alien_h and 
+                    alien['y'] < projectile['y'] + projectile_h):
+
+                    # Alien is hit
+                    projectiles.remove(projectile)
+                    aliens.remove(alien)
+
+                    # No further aliens can be hit by this projectile 
+                    # so skip to the next projectile 
+                    break
 
     # Firing (spawning new projectiles)
     if projectile_fired:
@@ -129,7 +154,7 @@ while running:
 
     # Projectiles
     for projectile in projectiles:
-        rect = (projectile['x'], projectile['y'], 4, 8)
+        rect = (projectile['x'], projectile['y'], projectile_w, projectile_h)
         pg.draw.rect(screen, (255, 0, 0), rect) 
 
     # Update window with newly drawn pixels
