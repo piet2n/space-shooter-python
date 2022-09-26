@@ -51,10 +51,15 @@ right_pressed = False
 # https://sfxr.me/#34T6Pm25W5VunHtL14gUxhLx6MqNduzaeRPcUbqtT4RN55w6nP9NipaUrx5ZBBvohWwXgMrd5BS2e7HwRwEVyzmKM3FV8LiU7Gh5ob2VvvMi6ftqdhbVB54ZM 
 sound_laser = pg.mixer.Sound("sounds/laser.wav")
 
+# Font for scoreboard
+# https://fonts.google.com/specimen/Press+Start+2P/about
+font_scoreboard = pg.font.Font("fonts/PressStart2P-Regular.ttf", 20)
+
 
 ### Game loop ###
 running = True
 tick = 0
+score = 0
 while running:
 
     ## Event loop  (handle keypresses etc.) ##
@@ -162,6 +167,10 @@ while running:
     for projectile in projectiles:
         rect = (projectile['x'], projectile['y'], projectile_w, projectile_h)
         pg.draw.rect(screen, (255, 0, 0), rect) 
+
+    # Scoreboard
+    text = font_scoreboard.render(f"{score:04d}", True, (255,255,255))
+    screen.blit(text, (10,560))
 
     # Update window with newly drawn pixels
     pg.display.flip()
