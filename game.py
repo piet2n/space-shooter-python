@@ -40,7 +40,7 @@ alien_h = alien_images[0].get_rect().size[1]
 # Projectiles 
 projectile_fired = False
 projectiles = []
-projectile_w = 4
+projectile_w = 4 
 projectile_h = 8
 
 # Keypress status
@@ -138,7 +138,7 @@ while running:
     if projectile_fired:
         sound_laser.play()
 
-        projectile = {'x': ship_x + ship_w/2, 
+        projectile = {'x': ship_x + ship_w/2 - projectile_w/2, 
                       'y': ship_y}
         projectiles.append(projectile)
         projectile_fired = False
