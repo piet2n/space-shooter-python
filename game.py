@@ -14,6 +14,7 @@ ship_x, ship_y = 200, 500
 ship_w, ship_h = ship_images[0].get_rect().size
 
 aliens = []
+wave = 0
 for i in range(5):
     aliens.append({'x': 50*i + 50 , 'y': 0})
     aliens.append({'x': 50*i + 50, 'y': 50})
@@ -95,7 +96,13 @@ while running:
                 aliens.remove(alien)
                 score += 10
                 break
-
+    if not aliens:
+        wave += 1
+        total_aliens = 5 * (2**wave)
+        for i in range(total_aliens):
+            x = 40*(i % 10) + 20
+            y = 40*(i // 10)
+            aliens.append({'x': x,'y': y})
     # Drawing
     screen.fill((0, 0, 0))
 
