@@ -1,180 +1,130 @@
-# Arcade-style space shooter inspired by Galaga and Spacer Invaders.
-# Made for the purpose of teaching git version control to beginners.
-
 import pygame as pg
-
-
-### Setup ###
+global closedwindows
 pg.init()
 clock = pg.time.Clock()
 
 screen = pg.display.set_mode((400,600))
 pg.display.set_caption("Space Shooter")
 
-# Spaceship character
-ship_images = []
-for i in range(3):
-    img = pg.image.load(f"images/ship_{i}.png")
-    ship_images.append(img)
-ship_x = 200 
-ship_y = 500
-ship_w = ship_images[0].get_rect().size[0]
-ship_h = ship_images[0].get_rect().size[1]
+# Load images (make sure these paths are valid!)
+ship_images = [pg.image.load(f"images/ship_{i}.png") for i in range(3)]
+alien_images = [pg.image.load(f"images/alien_{i}.png") for i in range(2)]
 
-# Alien character
-alien_images = []
-for i in range(2):
-    img = pg.image.load(f"images/alien_{i}.png")
-    alien_images.append(img)
+ship_x, ship_y = 200, 500
+ship_w, ship_h = ship_images[0].get_rect().size
 
 aliens = []
 for i in range(5):
-    alien1 = {'x': 50*i + 50 , 'y': 0}
-    alien2 = {'x': 50*i + 50, 'y': 50}
-    aliens.append(alien1)
-    aliens.append(alien2)
+    aliens.append({'x': 50*i + 50 , 'y': 0})
+    aliens.append({'x': 50*i + 50, 'y': 50})
 
-alien_w = alien_images[0].get_rect().size[0]
-alien_h = alien_images[0].get_rect().size[1]
+alien_w, alien_h = alien_images[0].get_rect().size
 
-# Projectiles 
-projectile_fired = False
 projectiles = []
-projectile_w = 4 
-projectile_h = 8
+projectile_w, projectile_h = 4, 8
 
-# Keypress status
 left_pressed = False
 right_pressed = False
+projectile_fired = False
 
-# Sound: weapon / laser 
-# https://sfxr.me/#34T6Pm25W5VunHtL14gUxhLx6MqNduzaeRPcUbqtT4RN55w6nP9NipaUrx5ZBBvohWwXgMrd5BS2e7HwRwEVyzmKM3FV8LiU7Gh5ob2VvvMi6ftqdhbVB54ZM 
 sound_laser = pg.mixer.Sound("sounds/laser.wav")
-
-# Font for scoreboard
-# https://fonts.google.com/specimen/Press+Start+2P/about
 font_scoreboard = pg.font.Font("fonts/PressStart2P-Regular.ttf", 20)
 
-
-### Game loop ###
-running = True
-tick = 0
 score = 0
+tick = 0
+running = True
+closedwindows = False
+
 while running:
-
-    ## Event loop  (handle keypresses etc.) ##
-    events = pg.event.get()
-    for event in events:
-
-        # Close window (pressing [x], Alt+F4 etc.)
+    # Event handling
+    for event in pg.event.get():
         if event.type == pg.QUIT:
+            closedwindows = True
             running = False
-        
-        # Keypresses
         elif event.type == pg.KEYDOWN:
-
             if event.key == pg.K_ESCAPE:
                 running = False
-
             elif event.key == pg.K_LEFT:
                 left_pressed = True
-
             elif event.key == pg.K_RIGHT:
                 right_pressed = True
-
             elif event.key == pg.K_SPACE:
                 projectile_fired = True
-
-        # Keyreleases
         elif event.type == pg.KEYUP:
-
             if event.key == pg.K_LEFT:
-                left_pressed = False 
-
+                left_pressed = False
             elif event.key == pg.K_RIGHT:
-                right_pressed = False 
-    
+                right_pressed = False
 
-    ## Updating (movement, collisions, etc.) ##
-
-    # Alien
+    # Update aliens
     for alien in aliens:
         alien['y'] += 1
 
-    # Spaceship
+    # Death detection
+    ship_rect = pg.Rect(ship_x, ship_y, ship_w, ship_h)
+    for alien in aliens:
+        alien_rect = pg.Rect(alien['x'], alien['y'], alien_w, alien_h)
+        if ship_rect.colliderect(alien_rect):
+            running = False
+            break
+
+    # Move ship
     if left_pressed:
         ship_x -= 8
-
     if right_pressed:
         ship_x += 8
 
-    # Projectile movement
-    # Reverse iteration needed to handle each projectile correctly
-    # in cases where a projectile is removed.
-    for projectile in reversed(projectiles):
-        projectile['y'] -= 8 
+    # Fire projectile
+    if projectile_fired:
+        sound_laser.play()
+        projectiles.append({'x': ship_x + ship_w/2 - projectile_w/2, 'y': ship_y})
+        projectile_fired = False
 
-        # Remove projectiles leavning the top of the screen
+    # Update projectiles
+    for projectile in reversed(projectiles):
+        projectile['y'] -= 8
         if projectile['y'] < 0:
             projectiles.remove(projectile)
 
-    # Alien / projectile collision 
-    # Test each projectile against each alien
+    # Projectile-alien collisions
     for projectile in reversed(projectiles):
         for alien in aliens:
+            if (alien['x'] < projectile['x'] + projectile_w and projectile['x'] < alien['x'] + alien_w) and \
+               (projectile['y'] < alien['y'] + alien_h and alien['y'] < projectile['y'] + projectile_h):
+                projectiles.remove(projectile)
+                aliens.remove(alien)
+                score += 10
+                break
 
-            # Horizontal (x) overlap
-            if (alien['x'] < projectile['x'] + projectile_w and 
-                projectile['x'] < alien['x']+alien_w):
-                
-                # Vertical (y) overlap 
-                if (projectile['y'] < alien['y'] + alien_h and 
-                    alien['y'] < projectile['y'] + projectile_h):
+    # Drawing
+    screen.fill((0, 0, 0))
 
-                    # Alien is hit
-                    projectiles.remove(projectile)
-                    aliens.remove(alien)
+    r_ship = (tick // 4) % 3
+    screen.blit(ship_images[r_ship], (ship_x, ship_y))
 
-                    # No further aliens can be hit by this projectile 
-                    # so skip to the next projectile 
-                    break
-
-    # Firing (spawning new projectiles)
-    if projectile_fired:
-        sound_laser.play()
-
-        projectile = {'x': ship_x + ship_w/2 - projectile_w/2, 
-                      'y': ship_y}
-        projectiles.append(projectile)
-        projectile_fired = False
-
-
-    ## Drawing ##
-    screen.fill((0,0,0)) 
-
-    # 3 images --> tick % 3
-    # 100% animation speed: tick % 3
-    # 25% animation speed: int(tick/4) % 3
-    r = int(tick/4) % 3 
-    screen.blit(ship_images[r], (ship_x, ship_y))
-
-    # Alien
-    r = int(tick/8) % 2
+    r_alien = (tick // 8) % 2
     for alien in aliens:
-        screen.blit(alien_images[r], (alien['x'], alien['y']))
+        screen.blit(alien_images[r_alien], (alien['x'], alien['y']))
 
-    # Projectiles
     for projectile in projectiles:
-        rect = (projectile['x'], projectile['y'], projectile_w, projectile_h)
-        pg.draw.rect(screen, (255, 0, 0), rect) 
+        pg.draw.rect(screen, (255, 0, 0), (projectile['x'], projectile['y'], projectile_w, projectile_h))
 
-    # Scoreboard
-    text = font_scoreboard.render(f"{score:04d}", True, (255,255,255))
-    screen.blit(text, (10,560))
+    text = font_scoreboard.render(f"{score:04d}", True, (255, 255, 255))
+    screen.blit(text, (10, 560))
 
-    # Update window with newly drawn pixels
     pg.display.flip()
-
-    # Limit/fix frame rate (fps)
     clock.tick(50)
     tick += 1
+
+# Game over screen
+def gameend():
+    if not closedwindows:
+        screen.fill((0, 0, 0))
+        game_over_text = font_scoreboard.render("GAME OVER", True, (255, 0, 0))
+        text_rect = game_over_text.get_rect(center=(screen.get_width()//2, screen.get_height()//2))
+        screen.blit(game_over_text, text_rect)
+        pg.display.flip()
+        pg.time.wait(3000)
+        pg.quit()
+
+gameend()
