@@ -1,9 +1,10 @@
 import pygame as pg
-global closedwindows
+# add classes to aliens
 def setup():
     global clock, screen, ship_images, alien_images, ship_x, ship_y, ship_w, ship_h
     global aliens, wave, alien_w, alien_h, projectiles, projectile_w, projectile_h
     global left_pressed, right_pressed, projectile_fired, sound_laser, font_scoreboard
+    global closedwindows
 
     pg.init()
     clock = pg.time.Clock()
@@ -79,9 +80,15 @@ while running:
     # Move ship
     if left_pressed:
         ship_x -= 8
+        if ship_x < 0:
+            ship_x = 0
     if right_pressed:
         ship_x += 8
-
+        if ship_x > screen.get_width() - ship_w:
+            ship_x = screen.get_width() - ship_w
+    for alien in aliens:
+        if alien['y'] > 600:
+            running = False
     # Fire projectile
     if projectile_fired:
         sound_laser.play()
@@ -107,7 +114,7 @@ while running:
         wave += 1
         total_aliens = 5 * (2**wave)
         for i in range(total_aliens):
-            x = 40*(i % 10) + 20
+            x = 40*(i % 10) + 15
             y = 40*(i // 10)
             aliens.append({'x': x,'y': y})
     # Drawing
