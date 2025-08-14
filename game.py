@@ -1,35 +1,42 @@
 import pygame as pg
 global closedwindows
-pg.init()
-clock = pg.time.Clock()
+def setup():
+    global clock, screen, ship_images, alien_images, ship_x, ship_y, ship_w, ship_h
+    global aliens, wave, alien_w, alien_h, projectiles, projectile_w, projectile_h
+    global left_pressed, right_pressed, projectile_fired, sound_laser, font_scoreboard
 
-screen = pg.display.set_mode((400,600))
-pg.display.set_caption("Space Shooter")
+    pg.init()
+    clock = pg.time.Clock()
 
-# Load images (make sure these paths are valid!)
-ship_images = [pg.image.load(f"images/ship_{i}.png") for i in range(3)]
-alien_images = [pg.image.load(f"images/alien_{i}.png") for i in range(2)]
+    screen = pg.display.set_mode((400,600))
+    pg.display.set_caption("Space Shooter")
 
-ship_x, ship_y = 200, 500
-ship_w, ship_h = ship_images[0].get_rect().size
+    # Load images (make sure these paths are valid!)
+    ship_images = [pg.image.load(f"images/ship_{i}.png") for i in range(3)]
+    alien_images = [pg.image.load(f"images/alien_{i}.png") for i in range(2)]
 
-aliens = []
-wave = 0
-for i in range(5):
-    aliens.append({'x': 50*i + 50 , 'y': 0})
-    aliens.append({'x': 50*i + 50, 'y': 50})
+    ship_x, ship_y = 200, 500
+    ship_w, ship_h = ship_images[0].get_rect().size
 
-alien_w, alien_h = alien_images[0].get_rect().size
+    aliens = []
+    wave = 0
+    for i in range(5):
+        aliens.append({'x': 50*i + 50 , 'y': 0})
+        aliens.append({'x': 50*i + 50, 'y': 50})
 
-projectiles = []
-projectile_w, projectile_h = 4, 8
+    alien_w, alien_h = alien_images[0].get_rect().size
 
-left_pressed = False
-right_pressed = False
-projectile_fired = False
+    projectiles = []
+    projectile_w, projectile_h = 4, 8
 
-sound_laser = pg.mixer.Sound("sounds/laser.wav")
-font_scoreboard = pg.font.Font("fonts/PressStart2P-Regular.ttf", 20)
+    left_pressed = False
+    right_pressed = False
+    projectile_fired = False
+
+    sound_laser = pg.mixer.Sound("sounds/laser.wav")
+    font_scoreboard = pg.font.Font("fonts/PressStart2P-Regular.ttf", 20)
+
+setup()
 
 score = 0
 tick = 0
