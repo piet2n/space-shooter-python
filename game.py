@@ -1,5 +1,20 @@
 import pygame as pg
-# add classes to aliens
+
+class Alien:
+    def __init__(self, x, y, image):
+        self.x = x
+        self.y = y
+        self.image = image
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+    def update(self):
+        self.y += 1
+        self.rect.topleft = (self.x, self.y)
+
+    def draw(self, surface):
+        surface.blit(self.image, (self.x, self.y))
+
+
 def setup():
     global clock, screen, ship_images, alien_images, ship_x, ship_y, ship_w, ship_h
     global aliens, wave, alien_w, alien_h, projectiles, projectile_w, projectile_h
@@ -12,7 +27,7 @@ def setup():
     screen = pg.display.set_mode((400,600))
     pg.display.set_caption("Space Shooter")
 
-    # Load images (make sure these paths are valid!)
+    # Load images
     ship_images = [pg.image.load(f"images/ship_{i}.png") for i in range(3)]
     alien_images = [pg.image.load(f"images/alien_{i}.png") for i in range(2)]
 
@@ -22,8 +37,8 @@ def setup():
     aliens = []
     wave = 0
     for i in range(5):
-        aliens.append({'x': 50*i + 50 , 'y': 0})
-        aliens.append({'x': 50*i + 50, 'y': 50})
+        aliens.append(Alien(50*i + 50, 0, alien_images[0]))
+        aliens.append(Alien(50*i + 50, 50, alien_images[0]))
 
     alien_w, alien_h = alien_images[0].get_rect().size
 
@@ -37,12 +52,18 @@ def setup():
     sound_laser = pg.mixer.Sound("sounds/laser.wav")
     font_scoreboard = pg.font.Font("fonts/PressStart2P-Regular.ttf", 20)
 
-setup()
+    return (clock, screen, ship_images, alien_images, ship_x, ship_y, ship_w, ship_h,
+            aliens, wave, alien_w, alien_h, projectiles, projectile_w, projectile_h,
+            left_pressed, right_pressed, projectile_fired, sound_laser, font_scoreboard, False)
+
+# Setup game variables
+(clock, screen, ship_images, alien_images, ship_x, ship_y, ship_w, ship_h,
+ aliens, wave, alien_w, alien_h, projectiles, projectile_w, projectile_h,
+ left_pressed, right_pressed, projectile_fired, sound_laser, font_scoreboard, closedwindows) = setup()
 
 score = 0
 tick = 0
 running = True
-closedwindows = False
 
 while running:
     # Event handling
@@ -67,13 +88,12 @@ while running:
 
     # Update aliens
     for alien in aliens:
-        alien['y'] += 1
+        alien.update()
 
     # Death detection
     ship_rect = pg.Rect(ship_x, ship_y, ship_w, ship_h)
     for alien in aliens:
-        alien_rect = pg.Rect(alien['x'], alien['y'], alien_w, alien_h)
-        if ship_rect.colliderect(alien_rect):
+        if ship_rect.colliderect(alien.rect):
             running = False
             break
 
@@ -87,8 +107,9 @@ while running:
         if ship_x > screen.get_width() - ship_w:
             ship_x = screen.get_width() - ship_w
     for alien in aliens:
-        if alien['y'] > 600:
+        if alien.y > 600:
             running = False
+
     # Fire projectile
     if projectile_fired:
         sound_laser.play()
@@ -103,20 +124,22 @@ while running:
 
     # Projectile-alien collisions
     for projectile in reversed(projectiles):
+        projectile_rect = pg.Rect(projectile['x'], projectile['y'], projectile_w, projectile_h)
         for alien in aliens:
-            if (alien['x'] < projectile['x'] + projectile_w and projectile['x'] < alien['x'] + alien_w) and \
-               (projectile['y'] < alien['y'] + alien_h and alien['y'] < projectile['y'] + projectile_h):
+            if alien.rect.colliderect(projectile_rect):
                 projectiles.remove(projectile)
                 aliens.remove(alien)
                 score += 10
                 break
+
     if not aliens:
         wave += 1
         total_aliens = 5 * (2**wave)
         for i in range(total_aliens):
             x = 40*(i % 10) + 15
             y = 40*(i // 10)
-            aliens.append({'x': x,'y': y})
+            aliens.append(Alien(x, y, alien_images[0]))
+
     # Drawing
     screen.fill((0, 0, 0))
 
@@ -125,7 +148,8 @@ while running:
 
     r_alien = (tick // 8) % 2
     for alien in aliens:
-        screen.blit(alien_images[r_alien], (alien['x'], alien['y']))
+        alien.image = alien_images[r_alien]
+        alien.draw(screen)
 
     for projectile in projectiles:
         pg.draw.rect(screen, (255, 0, 0), (projectile['x'], projectile['y'], projectile_w, projectile_h))
@@ -137,7 +161,6 @@ while running:
     clock.tick(50)
     tick += 1
 
-# Game over screen
 def gameend():
     if not closedwindows:
         screen.fill((0, 0, 0))
