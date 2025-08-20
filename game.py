@@ -1,4 +1,5 @@
 import pygame as pg
+from moviepy import *
 # GAME OVER YEEEEEEEEEEEAH
 basespeed = 1
 class Alien:
@@ -166,7 +167,10 @@ def gameend():
         text_rect = game_over_text.get_rect(center=(screen.get_width()//2, screen.get_height()//2))
         screen.blit(game_over_text, text_rect)
         pg.display.flip()
-        pg.time.wait(3000)
+        pg.time.wait(500)
         pg.quit()
+        clip = VideoFileClip('images/gameover.mp4')
+        clip.preview()
+        exit()
 
 gameend()
