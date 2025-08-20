@@ -1,14 +1,16 @@
 import pygame as pg
 # GAME OVER YEEEEEEEEEEEAH
+basespeed = 1
 class Alien:
-    def __init__(self, x, y, image):
+    def __init__(self, x, y, image,speed=basespeed):
         self.x = x
         self.y = y
         self.image = image
+        self.speed = speed
         self.rect = self.image.get_rect(topleft=(x, y))
 
     def update(self):
-        self.y += 1
+        self.y += self.speed
         self.rect.topleft = (self.x, self.y)
 
     def draw(self, surface):
@@ -16,10 +18,6 @@ class Alien:
 
 
 def setup():
-    global clock, screen, ship_images, alien_images, ship_x, ship_y, ship_w, ship_h
-    global aliens, wave, alien_w, alien_h, projectiles, projectile_w, projectile_h
-    global left_pressed, right_pressed, projectile_fired, sound_laser, font_scoreboard
-    global closedwindows
 
     pg.init()
     clock = pg.time.Clock()
@@ -37,8 +35,8 @@ def setup():
     aliens = []
     wave = 0
     for i in range(5):
-        aliens.append(Alien(50*i + 50, 0, alien_images[0]))
-        aliens.append(Alien(50*i + 50, 50, alien_images[0]))
+        aliens.append(Alien(50*i + 50, 0, alien_images[0],speed=1))
+        aliens.append(Alien(50*i + 50, 50, alien_images[0],speed=1))
 
     alien_w, alien_h = alien_images[0].get_rect().size
 
@@ -138,7 +136,7 @@ while running:
         for i in range(total_aliens):
             x = 40*(i % 10) + 15
             y = 40*(i // 10)
-            aliens.append(Alien(x, y, alien_images[0]))
+            aliens.append(Alien(x, y, alien_images[0],speed=basespeed + wave*0.5))
 
     # Drawing
     screen.fill((0, 0, 0))
